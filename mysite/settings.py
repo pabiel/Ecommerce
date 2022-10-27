@@ -37,6 +37,7 @@ INSTALLED_APPS = [
     # 'admin_tools.dashboard',
     'polls',
     'debug_toolbar',
+    'rest_framework',
     'django_extensions',
     'django.contrib.admin',
     'django.contrib.auth',
