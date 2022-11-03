@@ -1,16 +1,18 @@
 from django.contrib import admin
-from .models import Question
 from .models import Person
 from .models import Team
 from django.db.models.functions import Lower
-# Register your models here.
 
-admin.site.register(Question)
+
+# Register your models here.
 
 
 class PersonAdmin(admin.ModelAdmin):
-    list_display = ['imie', 'shirt_size', 'get_full_team']
-    list_filter = ['team', 'data_dodania']
+    class Meta:
+        ordering = ['name']
+
+    list_display = ['name', 'shirt_size', 'get_full_team']
+    list_filter = ['team', 'date_added']
 
     @admin.display
     def get_full_team(self, obj):
@@ -19,10 +21,7 @@ class PersonAdmin(admin.ModelAdmin):
         return "---"
 
     def get_ordering(self, request):
-        return [Lower('imie')]  # sort case insensitive
-
-    class Meta:
-        ordering = ['imie']
+        return [Lower('name')]  # sort case-insensitive
 
 
 admin.site.register(Person, PersonAdmin)
