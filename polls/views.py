@@ -6,10 +6,21 @@ from rest_framework.views import APIView
 from rest_framework.generics import ListAPIView
 from rest_framework.response import Response
 from rest_framework import status
-from rest_framework.decorators import api_view
+from rest_framework.decorators import api_view, authentication_classes, permission_classes
+from rest_framework.authentication import SessionAuthentication, BasicAuthentication
+from rest_framework.permissions import IsAuthenticated, BasePermission
 
 # lista akceptowanych metod protokołu HTTP, to pozwala na zgłaszanie wyjątków
 # w przypadku próby dostępu metodą spoza listy
+
+# SAFE_METHODS = ['GET']
+
+
+# class IsAuthenticatedOrReadOnly(BasePermission):
+#     def has_premission(self, request, view):
+#         if request.method in SAFE_METHODS or request.user and request.user.is_authenticated():
+#             return True
+#         return False
 
 
 class PersonList(APIView):
@@ -68,7 +79,7 @@ class GetByName(ListAPIView):
         return queryset
 
 
-@api_view(['GET', 'POST'])
+@api_view(['GET'])
 def team_list(request):
     """
     Lista wszystkich obiektów klasy Team.
@@ -79,15 +90,8 @@ def team_list(request):
         serializer = TeamSerializer(teams, many=True)
         return Response(serializer.data)
 
-    elif request.method == 'POST':
-        serializer = TeamSerializer(data=request.data)
-        if serializer.is_valid():
-            serializer.save()
-            return Response(serializer.data, status=status.HTTP_201_CREATED)
-        return Response(serializer.data, status=status.HTTP_400_BAD_REQUEST)
 
-
-@api_view(['GET', 'PUT', 'DELETE'])
+@api_view(['GET'])
 def team_detail(request, pk):
     """
     :param request: obiekt DRF Request
@@ -105,6 +109,28 @@ def team_detail(request, pk):
         """
         serializer = TeamSerializer(team)
         return Response(serializer.data)
+
+
+@api_view(['POST', 'PUT', 'DELETE'])
+@authentication_classes([SessionAuthentication, BasicAuthentication])
+@permission_classes([IsAuthenticated])
+def team_create_update_delete(request, pk):
+    """
+    :param request: obiekt DRF Request
+    :param pk: id obiektu Team
+    :return: Response (może zawierać dane i/lub status HTTP żądania)
+    """
+    try:
+        team = Team.objects.get(pk=pk)
+    except Team.DoesNotExist:
+        return Response(status=status.HTTP_404_NOT_FOUND)
+
+    if request.method == 'POST':
+        serializer = TeamSerializer(data=request.data)
+        if serializer.is_valid():
+            serializer.save()
+            return Response(serializer.data, status=status.HTTP_201_CREATED)
+        return Response(serializer.data, status=status.HTTP_400_BAD_REQUEST)
 
     elif request.method == 'PUT':
         """
