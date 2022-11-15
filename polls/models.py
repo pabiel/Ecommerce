@@ -1,5 +1,5 @@
 from django.db import models
-
+from datetime import date
 
 # Create your models here.
 
@@ -39,7 +39,7 @@ class Person(models.Model):
 
     name = models.CharField(max_length=30, null=False, blank=False)
     surname = models.CharField(max_length=30, null=False, blank=False)
-    month_added = models.IntegerField(choices=MONTHS)
+    month_added = models.IntegerField(choices=MONTHS, default=date.today().month)
     date_added = models.DateField(auto_now_add=True)
     team = models.ForeignKey(Team, null=True, on_delete=models.SET_NULL)
     shirt_size = models.CharField(max_length=1, choices=SHIRT_SIZES, default=SHIRT_SIZES[0][0])

@@ -3,7 +3,6 @@ from .models import Person
 from .models import Team
 from django.db.models.functions import Lower
 
-
 # Register your models here.
 
 

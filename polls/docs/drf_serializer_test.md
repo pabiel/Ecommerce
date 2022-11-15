@@ -1,5 +1,4 @@
-## Kod testujący modele Person i Team
-
+## Kod testujący model Person
 ```
 from polls.models import Person, Team, MONTHS, SHIRT_SIZES
 from polls.serializers import PersonSerializer, TeamSerializer
@@ -8,26 +7,29 @@ from rest_framework.parsers import JSONParser
 import io
 
 person = Person(name='Adam', month_added=1)
-team = Team(name='Stomil Olsztyn', country='PL')
-
 serializerP = PersonSerializer(person)
-serializerT = TeamSerializer(team)
 serializerP.data
-serializerT.data
-
 contentP = JSONRenderer().render(serializerP.data)
-contentT = JSONRenderer().render(serializerT.data)
 contentP
-contentT
-
 streamP = io.BytesIO(contentP)
-streamT = io.BytesIO(contentT)
-
 dataP = JSONParser().parse(streamP)
-dataT = JSONParser().parse(streamT)
-
 deserializerP = PersonSerializer(data=dataP)
-deserializerT = TeamSerializer(data=dataT)
 deserializerP.is_valid()
+deserializerP.errors
+```
+## Kod testujący model Team
+```
+team = Team(name='Stomil Olsztyn', country='PL')
+serializerT = TeamSerializer(team)
+serializerT.data
+contentT = JSONRenderer().render(serializerT.data)
+contentT
+streamT = io.BytesIO(contentT)
+dataT = JSONParser().parse(streamT)
+deserializerT = TeamSerializer(data=dataT)
 deserializerT.is_valid()
+deserializerT.errors
+
+
+
 ```
