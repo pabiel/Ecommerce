@@ -1,6 +1,15 @@
 from rest_framework import serializers
 from .models import Person, Team, SHIRT_SIZES, MONTHS
 from datetime import date
+from django.contrib.auth.models import User
+
+
+class UserSerializer(serializers.ModelSerializer):
+    snippets = serializers.PrimaryKeyRelatedField(queryset=Person.objects.all())
+
+    class Meta:
+        model = User
+        fields = ['id', 'username', 'owner']
 
 
 class TeamSerializer(serializers.Serializer):
@@ -71,3 +80,5 @@ class PersonSerializer(serializers.Serializer):
         instance.team = validated_data.get('team', instance.team)
         instance.save()
         return instance
+
+

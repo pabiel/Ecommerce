@@ -43,6 +43,7 @@ class Person(models.Model):
     date_added = models.DateField(auto_now_add=True)
     team = models.ForeignKey(Team, null=True, on_delete=models.SET_NULL)
     shirt_size = models.CharField(max_length=1, choices=SHIRT_SIZES, default=SHIRT_SIZES[0][0])
+    owner = models.ForeignKey('auth.User', on_delete=models.CASCADE, null=True, blank=True)
 
     def __str__(self):
         return self.name

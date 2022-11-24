@@ -38,6 +38,7 @@ INSTALLED_APPS = [
     'polls',
     'debug_toolbar',
     'rest_framework',
+    'rest_framework.authtoken',
     'django_extensions',
     'django.contrib.admin',
     'django.contrib.auth',
