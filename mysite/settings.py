@@ -48,6 +48,12 @@ INSTALLED_APPS = [
     'django.contrib.staticfiles',
 ]
 
+REST_FRAMEWORK = {
+    'DEFAULT_PERMISSION_CLASSES': [
+        'polls.permissions.CustomDjangoModelPermission',
+    ]
+}
+
 INTERNAL_IPS = [
     "127.0.0.1"
 ]
