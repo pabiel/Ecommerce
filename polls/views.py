@@ -7,7 +7,7 @@ from .serializers import PersonSerializer, TeamSerializer
 from rest_framework.authentication import SessionAuthentication, BasicAuthentication, TokenAuthentication
 from rest_framework.permissions import IsAuthenticated
 from django.contrib.auth.models import User
-from .serializers import UserSerializer
+# from .serializers import UserSerializer
 from django.contrib.auth.models import User
 from django.conf import settings
 from django.db.models.signals import post_save
