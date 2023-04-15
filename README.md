@@ -1,4 +1,2 @@
->## Aplikacje WWW
->> ## Django 
->>> ## Rest 
->>>> ## Framework
+>## RESTful API
+- Django Rest Framework
