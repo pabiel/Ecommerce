@@ -36,6 +36,9 @@ class Team(models.Model):
 class Person(models.Model):
     class Meta:
         ordering = ['name']
+        permissions = [
+            ('can_view_other_persons', 'You can see persons from same team.'),
+        ]
 
     name = models.CharField(max_length=30, null=False, blank=False)
     surname = models.CharField(max_length=30, null=False, blank=False)

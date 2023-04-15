@@ -14,6 +14,8 @@ from django.conf import settings
 from django.db.models.signals import post_save
 from django.dispatch import receiver
 from rest_framework.authtoken.models import Token
+from .permissions import CustomDjangoModelPermission
+from django.http import HttpResponse
 
 
 # lista akceptowanych metod protokołu HTTP, to pozwala na zgłaszanie wyjątków
@@ -40,31 +42,21 @@ def create_auth_token(sender, instance=None, created=False, **kwargs):
         Token.objects.create(user=instance)
 
 
-class UserList(generics.ListAPIView):
-    queryset = User.objects.all()
-    serializer_class = UserSerializer
-
-
-class UserDetail(generics.RetrieveAPIView):
-    queryset = User.objects.all()
-    serializer_class = UserSerializer
-
-
 @api_view(['GET'])
-@authentication_classes([SessionAuthentication, BasicAuthentication, TokenAuthentication])
+@authentication_classes([SessionAuthentication, BasicAuthentication])
 @permission_classes([IsAuthenticated])
 def person_list(request):
     """
     Wylistuj wszystkich obiekty, lub stwórz obiekty klasy Person.
     """
     if request.method == 'GET':
-        persons = Person.objects.filter(owner_id=request.user.id)
+        persons = Person.objects.filter(owner=request.user)
         serializer = PersonSerializer(persons, many=True)
         return Response(serializer.data)
 
 
 @api_view(['GET'])
-@authentication_classes([SessionAuthentication, BasicAuthentication, TokenAuthentication])
+@authentication_classes([SessionAuthentication, BasicAuthentication])
 @permission_classes([IsAuthenticated])
 def person_detail(request, pk):
     """
@@ -138,7 +130,6 @@ def person_update(request, pk):
 
 @api_view(['DELETE'])
 @authentication_classes([TokenAuthentication])
-@permission_classes([IsAuthenticated])
 def person_delete(request, pk):
     """
     :param request: obiekt DRF Request
@@ -157,7 +148,37 @@ def person_delete(request, pk):
         return Response(status=status.HTTP_204_NO_CONTENT)
 
 
+def person_view(request, pk):
+    if not request.user.has_perm('polls.view_person'):
+        return HttpResponse(f"You don't have permissions.")
+    try:
+        person = Person.objects.get(pk=pk)
+        return HttpResponse(f"This users name is {person}")
+    except Person.DoesNotExist:
+        return HttpResponse(f"There is no user in database with id={pk}.")
+
+
 @api_view(['GET'])
+@authentication_classes([SessionAuthentication])
+def person_team_members(request, pk):
+    if not request.user.has_perm('polls.can_view_other_persons'):
+        return HttpResponse(f"You don't have permissions.")
+    try:
+        team_id = Person.objects.get(pk=pk, owner_id=request.user.id).team_id
+        person = Person.objects.filter(team_id=team_id)
+        serializer = PersonSerializer(person, many=True)
+        return Response(serializer.data)
+    except Person.DoesNotExist:
+        return HttpResponse(f"There is no user in database with id={pk}.")
+
+
+
+
+
+
+
+@api_view(['GET'])
+@permission_classes([CustomDjangoModelPermission])
 def team_list(request):
     """
     Lista wszystkich obiektów klasy Team.
@@ -191,18 +212,14 @@ def team_detail(request, pk):
 
 
 @api_view(['GET'])
-@authentication_classes([TokenAuthentication])
-@permission_classes([IsAuthenticated])
 def teams_members(request, pk):
     if request.method == 'GET':
-        persons = Person.objects.filter(team_id=pk, owner_id=request.user.id)
+        persons = Person.objects.filter(team=pk, owner=request.user)
         serializer = PersonSerializer(persons, many=True)
         return Response(serializer.data)
 
 
 @api_view(['POST'])
-@authentication_classes([SessionAuthentication, BasicAuthentication])
-@permission_classes([IsAuthenticated])
 def team_create(request, pk):
     if request.method == 'POST':
         """
@@ -216,8 +233,6 @@ def team_create(request, pk):
 
 
 @api_view(['PUT'])
-@authentication_classes([SessionAuthentication, BasicAuthentication])
-@permission_classes([IsAuthenticated])
 def team_update(request, pk):
     try:
         team = Team.objects.get(pk=pk)
@@ -235,8 +250,7 @@ def team_update(request, pk):
 
 
 @api_view(['DELETE'])
-@authentication_classes([SessionAuthentication, BasicAuthentication])
-@permission_classes([IsAuthenticated])
+@authentication_classes([TokenAuthentication])
 def team_delete(request, pk):
     """
     :param request: obiekt DRF Request

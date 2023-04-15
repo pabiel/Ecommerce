@@ -14,9 +14,11 @@ urlpatterns = [
     path('teams/create/<int:pk>/', views.team_create),
     path('teams/update/<int:pk>/', views.team_update),
     path('teams/delete/<int:pk>/', views.team_delete),
-    path('users/', views.UserList.as_view()),
-    path('teams/<int:id>/members', views.teams_members),
-    path('users/<int:pk>/', views.UserDetail.as_view()),
+    # path('users/', views.UserList.as_view()),
+    path('teams/<int:pk>/members', views.teams_members),
+    path('persons/<int:pk>/details', views.person_view),
+    path('persons/<int:pk>/team_members', views.person_team_members),
+    # path('users/<int:pk>/', views.UserDetail.as_view()),
     # path('login/', include('rest_framework.urls')),
 ]
 urlpatterns = format_suffix_patterns(urlpatterns)
