@@ -1,4 +1,5 @@
 from django.shortcuts import render
+
 from rest_framework import status, generics
 from rest_framework.decorators import api_view, authentication_classes, permission_classes
 from rest_framework.response import Response
@@ -17,6 +18,16 @@ from rest_framework.authtoken.models import Token
 
 # lista akceptowanych metod protokołu HTTP, to pozwala na zgłaszanie wyjątków
 # w przypadku próby dostępu metodą spoza listy
+
+# SAFE_METHODS = ['GET']
+
+
+# class IsAuthenticatedOrReadOnly(BasePermission):
+#     def has_premission(self, request, view):
+#         if request.method in SAFE_METHODS or request.user and request.user.is_authenticated():
+#             return True
+#         return False
+
 
 
 for user in User.objects.all():
@@ -44,7 +55,7 @@ class UserDetail(generics.RetrieveAPIView):
 @permission_classes([IsAuthenticated])
 def person_list(request):
     """
-    Lista wszystkich obiektów klasy Person.
+    Wylistuj wszystkich obiekty, lub stwórz obiekty klasy Person.
     """
     if request.method == 'GET':
         persons = Person.objects.filter(owner_id=request.user.id)
@@ -57,21 +68,19 @@ def person_list(request):
 @permission_classes([IsAuthenticated])
 def person_detail(request, pk):
     """
-    :param request: obiekt DRF Request
-    :param pk: id obiektu Person
-    :return: Response (może zawierać dane i/lub status HTTP żądania)
+    Retrieve, update or delete a snippet instance.
     """
-    try:
-        person = Person.objects.get(pk=pk)
-    except Person.DoesNotExist:
-        return Response(status=status.HTTP_404_NOT_FOUND)
+    def get_object(self, pk):
+        try:
+            return Person.objects.get(pk=pk)
+        except Person.DoesNotExist:
+            raise Http404
 
-    if request.method == 'GET':
-        """
-        Zwraca pojedynczy obiekt typu Person.
-        """
+    def get(self, request, pk, format=None):
+        person = self.get_object(pk)
         serializer = PersonSerializer(person)
         return Response(serializer.data)
+
 
 
 @api_view(['GET'])
@@ -178,6 +187,7 @@ def team_detail(request, pk):
         """
         serializer = TeamSerializer(team)
         return Response(serializer.data)
+
 
 
 @api_view(['GET'])
