@@ -1,5 +1,7 @@
 from django.db import models
 from datetime import date
+from django.contrib import admin, auth
+from django.conf import settings
 
 # Create your models here.
 
@@ -40,13 +42,13 @@ class Person(models.Model):
             ('can_view_other_persons', 'You can see persons from same team.'),
         ]
 
-    name = models.CharField(max_length=30, null=False, blank=False)
-    surname = models.CharField(max_length=30, null=False, blank=False)
+    name = models.CharField(max_length=60, null=False, blank=False)
+    surname = models.CharField(max_length=60, null=False, blank=False)
     month_added = models.IntegerField(choices=MONTHS, default=date.today().month)
     date_added = models.DateField(auto_now_add=True)
     team = models.ForeignKey(Team, null=True, on_delete=models.SET_NULL)
     shirt_size = models.CharField(max_length=1, choices=SHIRT_SIZES, default=SHIRT_SIZES[0][0])
-    owner = models.ForeignKey('auth.User', on_delete=models.CASCADE, null=True, blank=True)
+    owner = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE, null=True, blank=True)
 
 
     def __str__(self):

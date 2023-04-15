@@ -30,6 +30,10 @@ ALLOWED_HOSTS = []
 
 # Application definition
 
+INTERNAL_IPS = [
+    "127.0.0.1"
+]
+
 INSTALLED_APPS = [
     # 'admin_tools',
     # 'admin_tools.theming',
@@ -53,10 +57,6 @@ REST_FRAMEWORK = {
         'polls.permissions.CustomDjangoModelPermission',
     ]
 }
-
-INTERNAL_IPS = [
-    "127.0.0.1"
-]
 
 MIDDLEWARE = [
     "debug_toolbar.middleware.DebugToolbarMiddleware",

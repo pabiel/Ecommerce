@@ -4,12 +4,7 @@ from datetime import date
 from django.contrib.auth.models import User
 
 
-class UserSerializer(serializers.ModelSerializer):
-    snippets = serializers.PrimaryKeyRelatedField(queryset=Person.objects.all())
 
-    class Meta:
-        model = User
-        fields = ['id', 'username', 'owner']
 
 
 class TeamSerializer(serializers.Serializer):
@@ -67,17 +62,22 @@ class PersonSerializer(serializers.Serializer):
     # przy dodawaniu nowego obiektu możemy odwołać się do istniejącego poprzez inicjalizację nowego obiektu
     # np. team=Team({id}) lub wcześniejszym stworzeniu nowej instancji tej klasy
     team = serializers.PrimaryKeyRelatedField(queryset=Team.objects.all(), allow_null=True)
+    owner = serializers.PrimaryKeyRelatedField(queryset=User.objects.all(), allow_null=True)
+
+    class Meta:
+        model = Person
+        fields = ('name', 'surname', 'shirt_size', 'month_added', 'team', 'owner')
 
     def create(self, validated_data):
         return Person.objects.create(**validated_data)
 
     def update(self, instance, validated_data):
         instance.id = validated_data.get('id', instance.id)
-
         instance.name = validated_data.get('name', instance.name)
         instance.shirt_size = validated_data.get('shirt_size', instance.shirt_size)
         instance.month_added = validated_data.get('month_added', instance.month_added)
         instance.team = validated_data.get('team', instance.team)
+        # instance.owner = validated_data.get('owner', instance.owner)
         instance.save()
         return instance
 
